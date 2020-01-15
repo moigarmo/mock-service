@@ -6,7 +6,7 @@ function getArgument(name, def) {
     return (process.argv.find(arg => arg.startsWith(`${name}=`)) || `${name}=${def}`).split("=")[1]
 }
 
-const port = getArgument("port", 8009)
+const port = getArgument("port", 8008)
 const serviceRoot = getArgument("home", `${process.env["HOME"]}/mock-service`)
 const silent = getArgument("silent", false) === "true"
 
