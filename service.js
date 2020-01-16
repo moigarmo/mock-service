@@ -2,8 +2,9 @@ const fs = require("fs")
 const url = require("url")
 
 module.exports.Service = class Service {
-    constructor(serviceRoot) {
-        this.serviceRoot = serviceRoot
+    constructor(fileResolver, statusService) {
+        this.fileResolver = fileResolver
+        this.statusService = statusService
     }
 
     async serve(request, response) {
@@ -12,8 +13,16 @@ module.exports.Service = class Service {
 
     get(request, response) {
         try {
+            const reqUrl = this.getRequestURL(request)
+
             response.setHeader("Content-Type", "application/json")
-            response.write(fs.readFileSync(this.getFilePath(this.getRequestURL(request))).toString())
+
+            if (reqUrl.pathname === "/") {
+                response.write(JSON.stringify(this.statusService.getStatus(request)))
+            } else {
+                response.write(fs.readFileSync(this.fileResolver.getResponseFilePath(reqUrl)).toString())
+            }
+
             response.statusCode = 200
         } catch (error) {
             response.statusCode = 404
@@ -26,8 +35,8 @@ module.exports.Service = class Service {
             const reqUrl = this.getRequestURL(request)
             const data = await this.getBody(request)
 
-            fs.mkdirSync(this.getFileDir(reqUrl), { recursive: true })
-            fs.writeFileSync(this.getFilePath(reqUrl), data)
+            this.writeData(reqUrl, data)
+
             response.setHeader("Location", reqUrl.href)
             response.statusCode = 201
         } catch (error) {
@@ -44,16 +53,10 @@ module.exports.Service = class Service {
         })
     }
 
-    getFileDir(url) {
-        return `${this.serviceRoot}${url.pathname}`
-    }
-
-    getFileName(url) {
-        return (url.search || "default").replace(/&/g, "\\&");
-    }
-
-    getFilePath(url) {
-        return `${this.getFileDir(url)}/${this.getFileName(url)}`
+    writeData(reqUrl, data) {
+        fs.mkdirSync(this.fileResolver.getFileDir(reqUrl), { recursive: true })
+        fs.writeFileSync(this.fileResolver.getResponseFilePath(reqUrl), data)
+        fs.writeFileSync(this.fileResolver.getSearchFilePath(reqUrl), reqUrl.search)
     }
 
     getRequestURL(request) {
