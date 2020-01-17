@@ -9,7 +9,7 @@ Currently two http methods are supported:
 
 **GET**: returns the contents of the json file that matches the request path
 
-Unsupported methods will return 200
+Unsupported methods will return 200 and will have no effect
 
 ## Installation
 
@@ -23,59 +23,33 @@ Unsupported methods will return 200
 
 - port: port number (default 8008)
 - home: service home folder, the root for all service requests (default $HOME/mock-service)
-- silent: If true no information is displayed about requests (default false)
 
-**Example**: mock-service port=8081 home=../my-service silent=true
+**Example**: mock-service port=8081 home=../my-service
 
 ## Data structure
 
-The request path is replicated in disk as a directory tree, files inside the last
-folder being the json responses.
+When a POST is handled, the request path is hashed and that hashed is used to create a directory in the service home folder.
+Inside each request directory two files are created:
 
-Response files names are a hash value obtained of the query search value of the request, or the word "default" if the request has no search part.
+* request: contains the request path, used by the status endpoint
+* response: contains the body of the request
 
-A get method does:
 
-* If a get request contains no search query, the default file is served as response.
-* If the request has a search query, a file named as the search query (hashed) is served.
-* If no match is found 404 is returned.
+```
+curl 'http://localhost:8008/services/myservice/people/123' -d '{ "prop" : "val" }'
+```
+
+_Creates a response file with the body in ${home}/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/response,
+and a request file with the request path in ${home}/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/request_
+
+
+When a GET is handled, the request path is hashed and a matching folder is search, if found,
+the contents of the response file is returned, otherwise a 404 error is returned.
 
 ## Status endpoint
 
 GET request to the root of the service returns the status of the mock service, a json object containing all endpoints defined and where the response file is.
 
-## Examples
-
-**Post default**
-
-    curl 'http://localhost:8008/services/myservice/people/123' -d '{ "prop" : "val" }'
-
-
-_Creates a file with name "default" hashed with content { "prop" : "val" } in directory $home/services/myservice/people/123_
-
-**Post with specific search params**
-
-    curl 'http://localhost:8008/services/myservice/people/123?name=jua&age=23' -d '{ "prop" : "val" }'
-
-
-_Creates a file with name "?name=jua&age=23" hashed, with extension .response and content { "prop" : "val" } in directory $home/services/myservice/people/123_
-
-_It also creates a file with the same name and extension .search with contents the search query, used to build the status endpoint result_
-
-
-**Get default**
-
-    curl 'http://localhost:8008/services/myservice/people/123'
-
-
-_returns the contents of the "default" hash .response file in directory $home/services/myservice/people/123 or 404 if not found_
-
-**Post with specific search params**
-
-    curl 'http://localhost:8008/services/myservice/people/123?name=jua&age=23' -d '{ "prop" : "val" }'
-
-
-_returns the contents "?name=jua\\&age=23" hash .response file in directory $home/services/myservice/people/123 or 404 if not found__
 
 **Get service status**
 
@@ -84,18 +58,20 @@ _returns the contents "?name=jua\\&age=23" hash .response file in directory $hom
 _Returns_
 
     {
-    "serviceRoot": "/home/username/mock-service",
-    "endpoints": [
-        {
-            "href": "http://localhost:8008/services/myservice/people/123/",
-            "response": "/services/myservice/people/123/37a8eec1ce19687d132fe29051dca629d164e2c4958ba141d5f4133a33f0688f.response"
-        },
-        {
-            "href": "http://localhost:8008/services/myservice/people/123/?name=jua&age=23",
-            "response": "/services/myservice/people/123/884933714e6cb27c32a39e9f1f286a43d76147d5bebf5388e797058552545786.response"
-        }
-    ]
-}
+        "serviceRoot": "/home/moi/mock-service",
+        "endpoints": [
+            {
+            "request": "http://localhost:8008/services/myservice/people?name=arthur&last_name=dent",
+            "response": "/2360db3db92b8045e63f01fbff4f761a69faf458bfcbaef454c5f840a8f9f901/response"
+            },
+            {
+            "request": "http://localhost:8008/services/myservice/people/123",
+            "response": "/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/response"
+            }
+        ]
+    }
+
+
 
 
 

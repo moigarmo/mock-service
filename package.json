@@ -2,14 +2,11 @@
   "name": "mock-service",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./app.js"
   },
   "bin": ".bin/mock-service",
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "file": "^0.2.2"
-  }
+  "license": "ISC"
 }
