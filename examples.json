@@ -1,0 +1,46 @@
+[{
+    "request": {
+        "path": "/services/myservice/entity",
+        "method": "POST",
+        "body": {
+            "id": "1234",
+            "name": "Peter"
+        }
+    },
+    "response": {
+        "statusCode": 201,
+        "headers": {
+            "Location": "http://${serviceHost}/services/myservice/entity/1234"
+        }
+    }
+},
+{
+    "request": {
+        "path": "/services/myservice/entity/1234",
+        "method": "GET"
+    },
+    "response": {
+        "statusCode": 200,
+        "body": {
+            "id": "1234",
+            "name": "Peter"
+        }
+    }
+},
+{
+    "request": {
+        "path": "/services/myservice/entity",
+        "queryParams": "name=Peter",
+        "method": "GET"
+    },
+    "response": {
+        "statusCode": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": {
+            "id": "1234",
+            "name": "Peter"
+        }
+    }
+}]
