@@ -24,13 +24,18 @@
         "body": {
             "id": "1234",
             "name": "Peter"
+        },
+        "headers": {
+        	"Content-Type": "application/json"
         }
     }
 },
 {
     "request": {
         "path": "/services/myservice/entity",
-        "queryParams": "name=Peter",
+        "queryParams": {
+            "name": "Peter"
+        },
         "method": "GET"
     },
     "response": {
