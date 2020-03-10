@@ -1,10 +1,10 @@
 import express, { Request, Response } from "express"
 
-import { Service } from "./service"
+import { MockerService } from "./mocker-service"
 
-export class Controller {
+export class MockerController {
 
-    constructor(private service: Service) {
+    constructor(private service: MockerService) {
 
     }
 

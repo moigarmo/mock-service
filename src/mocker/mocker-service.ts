@@ -2,7 +2,7 @@ import { readFileSync } from "fs"
 import { getRequestHash } from "../utils"
 import { EndpointRequest, EndpointResponse } from "../types"
 
-export class Service {
+export class MockerService {
     
     constructor(private serviceRoot: string) {
     }

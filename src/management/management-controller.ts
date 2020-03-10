@@ -10,8 +10,8 @@ export class ManagementController {
     }
 
     serve(server: express.Express) {
-        server.get('/status', (req, res) => this.getStatus(res))
-        server.post('/endpoint', (req, res) => this.createEndpoint(req, res))
+        server.get('/endpoints', (req, res) => this.getStatus(res))
+        server.post('/endpoints', (req, res) => this.createEndpoint(req, res))
     }
 
     getStatus(response: Response) {
