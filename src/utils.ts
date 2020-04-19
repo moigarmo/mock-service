@@ -2,19 +2,23 @@ import { createHash } from "crypto"
 import { argv } from "process"
 import { EndpointRequest } from "./types"
 
-const stringify = (o: any): string => {
+const stringify = require("fast-json-stable-stringify")
+
+const stringifyNonEmptyObject = (o: any): string => {
     if (!o) return ""
 
-    const str = JSON.stringify(o)    
+    const str = stringify(o)    
     return str && str.length > 2 ? str : ""
 }
 
 const getRequestHash = (request: EndpointRequest): string => {
-    const requestString = `${request.method}${request.path}${stringify(request.queryParams)}${stringify(request.body)}`
+    const requestString = `${request.method}${request.path}${stringifyNonEmptyObject(request.queryParams)}${stringifyNonEmptyObject(request.body)}`
 
-    console.debug(`Hasing request ${requestString}`)
+    const hash = createHash("sha256").update(requestString).digest("hex")
 
-    return createHash("sha256").update(requestString).digest("hex")
+    console.debug(`Hasing request ${requestString} to ${hash}`)
+
+    return hash
 }
 
 const getArgument = (name: string, def: string): string => {
