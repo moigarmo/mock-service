@@ -3,14 +3,6 @@
 
 Mocks a service that responds with stored json files the matched requests.
 
-Currently two http methods are supported:
-
-**POST**: saves the body as a json file in a directory defined by the request path
-
-**GET**: returns the contents of the json file that matches the request path
-
-Unsupported methods will return 200 and will have no effect
-
 ## Installation
 
 **Requires nodejs v10.18.1 or higher**
@@ -22,54 +14,51 @@ Unsupported methods will return 200 and will have no effect
     mock-service (arg=val)*
 
 - port: port number (default 8008)
+- managementPort: management service port number (default 8009)
 - home: service home folder, the root for all service requests (default $HOME/mock-service)
 
-**Example**: mock-service port=8081 home=../my-service
+**Example**: mock-service port=8081 managementPort=9000 home=/somepath/my-service
 
-## Data structure
+Starts a service at port 8081 and returns endpoints defined in /somepath/my-service folder. 
+Starts a management service at port 9000 that can create endpoints in /somepath/my-service folder.
 
-When a POST is handled, the request path is hashed and that hashed is used to create a directory in the service home folder.
-Inside each request directory two files are created:
+## Management service API
 
-* request: contains the request path, used by the status endpoint
-* response: contains the body of the request
+The management service handles endpoints definitions and stores them as plain text files in the home service folder.
 
+A directory is created with a hashed from each endpoint definition, inside each directory two files are stored with the request and the expected response.
+
+> POST /endpoints
+
+Creates an endpoint definition. The body of the request is defined as follows:
 
 ```
-curl 'http://localhost:8008/services/myservice/people/123' -d '{ "prop" : "val" }'
-```
-
-_Creates a response file with the body in ${home}/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/response,
-and a request file with the request path in ${home}/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/request_
-
-
-When a GET is handled, the request path is hashed and a matching folder is search, if found,
-the contents of the response file is returned, otherwise a 404 error is returned.
-
-## Status endpoint
-
-GET request to the root of the service returns the status of the mock service, a json object containing all endpoints defined and where the response file is.
-
-
-**Get service status**
-
-    curl 'http://localhost:8008/'
-
-_Returns_
-
-    {
-        "serviceRoot": "/home/moi/mock-service",
-        "endpoints": [
-            {
-            "request": "http://localhost:8008/services/myservice/people?name=arthur&last_name=dent",
-            "response": "/2360db3db92b8045e63f01fbff4f761a69faf458bfcbaef454c5f840a8f9f901/response"
-            },
-            {
-            "request": "http://localhost:8008/services/myservice/people/123",
-            "response": "/de2bbcebe4b22d766d6e1f814d6a46705fb0da069f81cd256363b1d18de4b3b5/response"
-            }
-        ]
+{
+    "request": {
+        "path": complete url path,
+        "method": http method,
+        "body": {
+        	body definition
+        }
+    },
+    "response": {
+        "statusCode": expected status code,
+        "headers": {
+            expected headers definition
+        },
+        "body": {
+            expected body definition
+        }
     }
+}
+```
+
+> GET /endpoints
+
+Returns the list of defined endpoints registered for this service. 
+
+**Request headers are not considered in the endpoint definitions as all request information is hashed and used to match requests and headers can vary from calls through different clients and might cause that expected resulst don't match**
+
 
 
 
