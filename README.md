@@ -19,7 +19,7 @@ Mocks a service that responds with stored json files the matched requests.
 
 **Example**: mock-service port=8081 managementPort=9000 home=/somepath/my-service
 
-Starts a service at port 8081 and returns endpoints defined in /somepath/my-service folder. 
+Starts a service at port 8081 and returns endpoints defined in /somepath/my-service folder.
 Starts a management service at port 9000 that can create endpoints in /somepath/my-service folder.
 
 ## Management service API
@@ -35,8 +35,11 @@ Creates an endpoint definition. The body of the request is defined as follows:
 ```
 {
     "request": {
-        "path": complete url path,
         "method": http method,
+        "path": complete url path,
+        "queryParams": {
+            query params definition
+        },
         "body": {
         	body definition
         }
@@ -55,7 +58,7 @@ Creates an endpoint definition. The body of the request is defined as follows:
 
 > GET /endpoints
 
-Returns the list of defined endpoints registered for this service. 
+Returns the list of defined endpoints registered for this service.
 
 **Request headers are not considered in the endpoint definitions as all request information is hashed and used to match requests and headers can vary from calls through different clients and might cause that expected resulst don't match**
 

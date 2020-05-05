@@ -1,7 +1,7 @@
 export type EndpointRequest = {
     method: string,
     path: string,
-    queryParams: string,
+    queryParams: any,
     body: any
 }
 
